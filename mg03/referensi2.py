@@ -57,7 +57,8 @@ fig = plt.figure()
 plt.xlim(0, 10)
 plt.ylim(0, 30)
 def animate(i):
-    lines = plt.plot([x_1[i], x_2[i]], [y_1[i], y_2[i]], 'ok-')
+    lines = plt.plot([x_1[i], x_2[i]], 
+                    [y_1[i], y_2[i]], 'ok-')
     return lines
 
 ani = animation.FuncAnimation(
