@@ -19,6 +19,7 @@ L = [np.sqrt((r_1[0][0]-r_2[0][0])**2 + (r_1[0][1] - r_2[0][1])**2)]
 
 while not(abs(v_1[-1][1]) < epsilon_v and r_1[-1][1] < epsilon \
           and abs(v_2[-1][1]) < epsilon_v and r_2[-1][1] < epsilon):
+    print("in loop")
     if (0.9 * L[0] < L[-1] < 1.1 * L[0]):
         v_1_old = [v_1[-1][0], v_1[-1][1]]
         v_2_old = [v_2[-1][0], v_2[-1][1]]
