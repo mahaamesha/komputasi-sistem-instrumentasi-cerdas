@@ -39,6 +39,31 @@ def extract_color(frame, lower=[0,0,0], upper=[0,0,0]):
     return res, mask
 
 
+def get_area(cnts):
+    arr = []    # store area of every contour
+    for cnt in cnts:
+        area = cv.contourArea(cnt)
+        arr.append(area)
+    return area
+
+
+def draw_min_rectangle(frame, cnts):
+    arr = []    # store arr of box for every contour detected
+    for cnt in cnts:
+        rect = cv.minAreaRect(cnt)
+        box = cv.boxPoints(rect)
+        box = np.int0(box)
+        arr.append(box)
+    
+    for (a,b,c,d) in arr:
+        cv.line(frame, pt1=a, pt2=b, color=(0,255,0), thickness=2)
+        cv.line(frame, pt1=b, pt2=c, color=(0,255,0), thickness=2)
+        cv.line(frame, pt1=c, pt2=d, color=(0,255,0), thickness=2)
+        cv.line(frame, pt1=d, pt2=a, color=(0,255,0), thickness=2)
+
+    return frame, arr
+
+
 # get centroid of every detected cnt, return it as array
 def draw_centroid(frame, cnts):
     arr = []    # store centroid of multiple objects
@@ -69,9 +94,12 @@ def process_func(frame):
     cnts = cv.findContours(erodila, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     cnts = grab_contours(cnts)
     # contoured = cv.drawContours(frame, cnts, -1, (0,255,0), 3)
-
+    
+    area = get_area(cnts)
+    centroid_frame, box = draw_min_rectangle(frame, cnts)
     centroid_frame, centroid = draw_centroid(frame, cnts)
     myData.store_centroid(centroid[0])  # centroid[0] because the array store centroid of many objects
+    myData.store_area(area)
     myData.store_period()
 
     return centroid_frame
@@ -111,13 +139,9 @@ def play_video(path, isLoop=1):
         
         # image processing for every frame
         frame = process_func(frame)
-        # adding text: fps, contours, etc
+        # adding text: fps, contouqqqrs, etc
         fps = cap.get(cv.CAP_PROP_FPS)
-        myData.store_fps(fps)
-
-        # store data to class
-        
-
+        myData.store_fps(fps)   # store data to class
 
         # show the frame
         cv.imshow("frame", frame)
@@ -126,7 +150,7 @@ def play_video(path, isLoop=1):
         if (cv.waitKey(1) == ord('q')):
             break
 
-        cv.waitKey(400)
+        cv.waitKey(50)
     
     cap.release()
     cv.destroyAllWindows()

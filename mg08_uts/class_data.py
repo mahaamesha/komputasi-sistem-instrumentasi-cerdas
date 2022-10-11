@@ -6,18 +6,15 @@ class Data():
         self.fps = None
         self.time = [None,None] # store time start & end when in oscilataion
         self.period = None
-        self.mass = None
-        self.pos = [(None,None)]    # storing (x, y)
-        self.velo = [(None,None)]   # storing (vx, vy)
-        self.acce = [(None,None)]   # storing (ax, ay)
-        # self.ep = [mass * g * pos[1]]   # storing mgh
-        # self.ek = [1/2 * mass * magnitude(velo[0], velo[1])**2]     # storing 1/2 m v^2
-        # self.em = [self.ep + self.ek]   # storing em of a ball
+        self.pos = [(None,None)]    # storing centroid (cx, cy)
     
     def store_fps(self, fps):
-        if self.fps == None:
+        if self.fps != fps:
             self.fps = fps
             print("FPS = %s." %fps)
+    
+    def store_area(self, area):
+        self.area = area
     
     def store_centroid(self, centroid):
         if self.pos[0] == (None,None):  # store initial value
@@ -25,16 +22,16 @@ class Data():
             (self.pos).append( (None,None) )    # i only need to store 2 centroid data
         else:
             self.pos[1] = centroid
-        print("(cx,cy) = (%s,%s)" %(centroid[0], centroid[1]))
+        print("centroid = [%s,%s]" %(self.pos[0], self.pos[1]))
     
     def store_period(self):
-        if self.pos[1] == (None,None):
+        if self.time[0] == None:
             self.time[0] = getTickCount()
-        
         # store period when in peak
-        if self.pos[1] == self.pos[0]:
+        elif self.pos[1] == self.pos[0]:
             self.time[1] = getTickCount()
             self.period = (self.time[1] - self.time[0]) / getTickFrequency()
             print("T = %s sekon" %self.period)
-            
-
+            self.time[0] = None     # so that make it go back to first condition
+        print("time     = [%s,%s]" %(self.time[0], self.time[1]))
+        
