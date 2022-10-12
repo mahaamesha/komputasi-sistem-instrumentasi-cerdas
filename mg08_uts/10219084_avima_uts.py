@@ -122,7 +122,9 @@ def process_func(frame):
     centroid_frame, centroid = draw_centroid(frame, cnts)
     myData.store_centroid(centroid[0])  # centroid[0] because the array store centroid of many objects
     myData.store_area(area)
+    myData.store_period_theory()
     myData.store_period()
+    myData.store_period_err()
 
     return centroid_frame
 
@@ -151,7 +153,7 @@ def play_video(path, isSave=0, isLoop=1):
     # for saving, I need define codec and create VideoWriter object
     if isSave:
         fourcc = cv.VideoWriter_fourcc(*'XVID')
-        out = cv.VideoWriter("./result.mp4", fourcc, 20.0, (cap_width,cap_heigth))
+        out = cv.VideoWriter("mg08_uts/result.mp4", fourcc, 20.0, (cap_width,cap_heigth))
 
     if (not cap.isOpened()):
         print("Error: Can't open camera")
@@ -180,8 +182,11 @@ def play_video(path, isSave=0, isLoop=1):
         # put text to frame
         frame = put_text2frame(frame, "FPS", myData.fps, 0)
         frame = put_text2frame(frame, "(cx,cy)", myData.pos[1], 1)
-        frame = put_text2frame(frame, "T", myData.period, 2)
-        frame = put_text2frame(frame, "A", myData.area, 3)
+        frame = put_text2frame(frame, "A", myData.area, 2)
+        frame = put_text2frame(frame, "T", myData.period, 3)
+        frame = put_text2frame(frame, "T_teori", myData.period_theory, 4)
+        frame = put_text2frame(frame, "%T", myData.period_err, 5)
+        
 
         # write final frame
         if isSave: out.write(frame)
@@ -193,7 +198,7 @@ def play_video(path, isSave=0, isLoop=1):
         if (cv.waitKey(1) == ord('q')):
             break
 
-        cv.waitKey(50)
+        cv.waitKey(10)
     
     cap.release()
     if isSave: out.release()
