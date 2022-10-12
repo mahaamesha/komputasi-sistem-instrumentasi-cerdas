@@ -1,7 +1,5 @@
 import cv2 as cv
 import numpy as np
-import matplotlib.pyplot as plt
-import os
 from imutils import grab_contours
 from class_data import Data
 
@@ -81,9 +79,33 @@ def draw_centroid(frame, cnts):
     return frame, arr
 
 
+def put_text2frame(frame, label, num, count, factor=1):     # count: number of line(s)
+    text = ""
+    org = (20*factor, 30*factor)
+    dist = 20*factor
+    fontFace = cv.FONT_HERSHEY_SIMPLEX
+    fontScale = 0.5*factor
+    color = (0,0,0)
+    thickness = 1*factor
+    text_color_bg = (255,255,255)
+
+    text = str("%s: %s" %(label, num))
+    temp_org = (org[0], org[1]+dist*count)     # 20 is distance to new line
+
+    # background
+    text_size, _ = cv.getTextSize(text, fontFace, fontScale, thickness)
+    text_w, text_h = text_size
+    cv.rectangle(frame, temp_org, (temp_org[0]+text_w, temp_org[1]-text_h), text_color_bg, -1)
+
+    # draw text
+    cv.putText(frame, text, temp_org, fontFace, fontScale, color, thickness, cv.LINE_AA)
+
+    return frame
+
+
 def process_func(frame):
     # extract specific color range
-    extracted, mask = extract_color(frame, lower=[0,127,127], upper=[255,255,255])
+    extracted, mask = extract_color(frame, lower=[0,127,127], upper=[179,255,255])
 
     # remove noise & strengthen the region
     kernel = np.ones( (3,3), np.uint8 )
@@ -105,6 +127,12 @@ def process_func(frame):
     return centroid_frame
 
 
+def get_cap_size(cap):
+    width = int( cap.get(cv.CAP_PROP_FRAME_WIDTH) )
+    heigth = int( cap.get(cv.CAP_PROP_FRAME_HEIGHT) )
+    return width, heigth
+
+
 # to reverse frame, so every frame will be contiuous
 def reverse_playback(cap, frame_counter):
     frame_counter += 1
@@ -116,8 +144,14 @@ def reverse_playback(cap, frame_counter):
     return cap, frame_counter
 
 
-def play_video(path, isLoop=1):
+def play_video(path, isSave=0, isLoop=1):
     cap = cv.VideoCapture(path)
+    cap_width, cap_heigth = get_cap_size(cap)
+
+    # for saving, I need define codec and create VideoWriter object
+    if isSave:
+        fourcc = cv.VideoWriter_fourcc(*'XVID')
+        out = cv.VideoWriter("media/recording.mp4", fourcc, 20.0, (cap_width,cap_heigth))
 
     if (not cap.isOpened()):
         print("Error: Can't open camera")
@@ -143,6 +177,15 @@ def play_video(path, isLoop=1):
         fps = cap.get(cv.CAP_PROP_FPS)
         myData.store_fps(fps)   # store data to class
 
+        # put text to frame
+        frame = put_text2frame(frame, "FPS", myData.fps, 0)
+        frame = put_text2frame(frame, "(cx,cy)", myData.pos[1], 1)
+        frame = put_text2frame(frame, "T", myData.period, 2)
+        frame = put_text2frame(frame, "A", myData.area, 3)
+
+        # write final frame
+        if isSave: out.write(frame)
+
         # show the frame
         cv.imshow("frame", frame)
 
@@ -153,6 +196,7 @@ def play_video(path, isLoop=1):
         cv.waitKey(50)
     
     cap.release()
+    if isSave: out.release()
     cv.destroyAllWindows()
 
 

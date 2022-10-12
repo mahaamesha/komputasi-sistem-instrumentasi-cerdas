@@ -7,6 +7,7 @@ class Data():
         self.time = [None,None] # store time start & end when in oscilataion
         self.period = None
         self.pos = [(None,None)]    # storing centroid (cx, cy)
+        self.area = None
     
     def store_fps(self, fps):
         if self.fps != fps:
@@ -15,6 +16,7 @@ class Data():
     
     def store_area(self, area):
         self.area = area
+        print("Area = %s." %area)
     
     def store_centroid(self, centroid):
         if self.pos[0] == (None,None):  # store initial value
