@@ -151,7 +151,7 @@ def play_video(path, isSave=0, isLoop=1):
     # for saving, I need define codec and create VideoWriter object
     if isSave:
         fourcc = cv.VideoWriter_fourcc(*'XVID')
-        out = cv.VideoWriter("media/recording.mp4", fourcc, 20.0, (cap_width,cap_heigth))
+        out = cv.VideoWriter("./result.mp4", fourcc, 20.0, (cap_width,cap_heigth))
 
     if (not cap.isOpened()):
         print("Error: Can't open camera")
@@ -202,4 +202,4 @@ def play_video(path, isSave=0, isLoop=1):
 
 if __name__ == "__main__":
     path = "mg08_uts/bandul.mp4"
-    play_video(path=path, isLoop=1)
+    play_video(path=path, isSave=1, isLoop=1)
